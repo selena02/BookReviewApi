@@ -1,0 +1,48 @@
+datasource db {
+  provider = "postgresql" // or your database of choice
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+seed = {
+  command = "node app/prisma/seed.js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  roles     Role[]   @relation("userRoles")
+  books     Book[]
+  reviews   Review[]
+}
+
+model Role {
+  id        Int    @id @default(autoincrement())
+  name      String @unique
+  users     User[] @relation("userRoles")
+}
+
+model Book {
+  id        Int      @id @default(autoincrement())
+  title     String
+  author    String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  reviews   Review[]
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  content   String
+  rating    Int
+  bookId    Int
+  book      Book     @relation(fields: [bookId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
