@@ -140,7 +140,7 @@ export const updateBook = async (req, res, next) => {
       const book = await prisma.book.findUnique({
         where: { id: bookId },
         select: {
-          userId: true, // Only fetch the userId to check if owner
+          userId: true,
         },
       });
 
@@ -148,11 +148,15 @@ export const updateBook = async (req, res, next) => {
         next(new NotFoundException("Book not found."));
       }
 
-      if (book.userId !== currentUserId) {
-        new next(
-          UnauthorizedException("You are not authorized to update this book.")
+      const currentUserId = req.user?.id;
+      if (!currentUserId || book.userId !== currentUserId) {
+        next(
+          new UnauthorizedException(
+            "You are not authorized to update this book."
+          )
         );
       }
+
       const updatedBook = await prisma.book.update({
         where: { id: bookId },
         data: updateData,
@@ -168,7 +172,7 @@ export const updateBook = async (req, res, next) => {
         },
       });
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Book updated successfully",
         book: updatedBook,
       });
@@ -176,7 +180,7 @@ export const updateBook = async (req, res, next) => {
       next(new ValidationException("No new data provided to update the book."));
     }
   } catch (error) {
-    next(new ServerErrorException("Error updating book"));
+    next(new ServerErrorException("Error updating book"));
   }
 };
 

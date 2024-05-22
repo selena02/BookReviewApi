@@ -49,7 +49,7 @@ router.post("/register", userValidationRules, registerUser);
 
 /**
  * @swagger
- * /api/auth//login:
+ * /api/auth/login:
  *   post:
  *     summary: User login
  *     description: Logs in a user using email and password.
